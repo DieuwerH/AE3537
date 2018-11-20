@@ -7,6 +7,7 @@ from sgp4.io import twoline2rv
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
+from Vector import Vector
 
 # open the yaml file and load it
 opened = open('FUNcube.yml', 'r')
@@ -21,6 +22,7 @@ satellite = twoline2rv(line1, line2, wgs72)
 
 positions = []
 velocities = []
+pos_vectors = []
 
 currenttime = startRecord
 while currenttime < endRecord:
@@ -30,6 +32,7 @@ while currenttime < endRecord:
     deltaSeconds = 10
     currenttime = currenttime + datetime.timedelta(0, deltaSeconds)
     positions.append(position)
+    pos_vectors.append(Vector(position[0], position[1], position[2]))
     velocities.append(velocity)
 
 
@@ -41,6 +44,9 @@ while currenttime < endRecord:
 
 # print(positions)
 # print(tle_functions.getInclination(tle))
+
+for vec in pos_vectors:
+    print(vec)
 
 fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
