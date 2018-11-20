@@ -7,6 +7,12 @@ class Vector:
         self.y = y
         self.z = z
 
+    def __repr__(self):
+        return 'Vector()'
+
+    def __str__(self):
+        return 'x: ' + str(self.x) + ', y: ' + str(self.y) + ", z: " + str(self.z)
+
     def rotate_z(self, theta):
         theta = math.radians(theta)
         newx = ((math.cos(theta)*self.x) + (-1* math.sin(theta) * self.y))
