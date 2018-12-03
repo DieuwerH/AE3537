@@ -75,6 +75,9 @@ class StateVector:
 
     def times(self, scalar):
         return StateVector(self.posX() * scalar, self.posY() * scalar, self.posZ() * scalar, 0,0,0)
+
+    def divide(self, scalar):
+        return StateVector(self.posX() / scalar, self.posY() / scalar, self.posZ() / scalar, 0,0,0)
     # get x position
     def posX(self):
         return self.pos[0]
