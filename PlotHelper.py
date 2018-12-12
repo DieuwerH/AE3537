@@ -9,6 +9,10 @@ def scatterStatevectors(axes, statevectors, color='none', marker='none'):
     else:
         axes.scatter(xs, ys, zs)
 
+def plotStatevectorsToPoint(axes, statevectors, point_vec):
+    for state_vec in statevectors:
+        plotLine(axes, state_vec, point_vec)
+
 def plotLine(axes, statevec_a, statevec_b, color = 'none'):
     if (color != 'none'):
         axes.plot(xs=[statevec_a.posX(), statevec_b.posX()],
@@ -25,6 +29,6 @@ def plotLines(axes, statevecs_a, statevecs_b, color='none'):
         plotLine(axes, sv_a, sv_b, color=color)
 
 def plotAxesMarkers(ax):
-    ax.plot(xs=[0, 6000], ys=[0, 0], zs=[0, 0], c='r')
-    ax.plot(xs=[0, 0], ys=[0, 6000], zs=[0, 0], c='g')
-    ax.plot(xs=[0, 0], ys=[0, 0], zs=[0, 6000], c='b')
+    ax.plot(xs=[0, 6e6], ys=[0, 0], zs=[0, 0], c='r')
+    ax.plot(xs=[0, 0], ys=[0, 6e6], zs=[0, 0], c='g')
+    ax.plot(xs=[0, 0], ys=[0, 0], zs=[0, 6e6], c='b')
