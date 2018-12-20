@@ -173,3 +173,5 @@ fabric.properties
 
 # Datafiles
 *.32fc
+
+*.png

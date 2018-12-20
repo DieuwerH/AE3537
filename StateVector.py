@@ -1,6 +1,7 @@
 import numpy as np
 import datetime
 import pytz
+from time_helper import datetime2gast
 
 
 class StateVector:
@@ -17,15 +18,11 @@ class StateVector:
         return 'StateVector()'
 
     def rotate_time(self, time):
-        # DateTime of Vernal Equinox 2018
-        L0 = datetime.datetime(2018, 3, 20, 16, 15, 0, 0, pytz.UTC)
-        # turning rate per second
-        # omega_earth = 7.2921158553e-5
 
-        timediff = (time - L0).total_seconds()
-        angle = self.omega_earth * timediff
-        self.rotate_velocity_angle(angle)
-        self.rotate_position_angle(angle)
+        theta = datetime2gast(time)
+
+        self.rotate_velocity_angle(theta)
+        self.rotate_position_angle(theta)
 
     def rotate_velocity_angle(self, angle):
         rotation_matrix = np.array([

@@ -39,9 +39,3 @@ def timeDiffTLE_StartRecord(loaded_yaml):
     tleTime = extractTLETime(loaded_yaml)
     startTime = extractStartRecordTime(loaded_yaml)
     return startTime - tleTime
-
-# print(timeDiffTLE_StartRecord(loaded))
-# print(extractTLE(loaded))
-# print(extractTLETime(loaded))
-# print(extractStartRecordTime(loaded))
-# print(extractEndRecordTime(loaded))

@@ -24,16 +24,11 @@ startRecord = yaml_reader.extractStartRecordTime(loaded)
 endRecord = yaml_reader.extractEndRecordTime(loaded)
 tuning_freq = yaml_reader.extractTuningFrequency(loaded)
 
-vernalEquinox = datetime.datetime(2018, 3, 20, 16, 15, 0, 0, pytz.UTC)
-ut1 = 86164.090530
-
-doptrack = LatLon(51.99888889, 4.37333333, height=134.64, name='DopTrackStation').toCartesian()
 # From http://www.apsalin.com/convert-geodetic-to-cartesian.aspx :
 centerEarth = StateVector(0, 0, 0, 0, 0, 0)
-dopStateVec = StateVector(3923683.03350176, 300074.043717263, 5002833.32624071, 0, 0, 0)
+doptrack = StateVector(3923683.03350176, 300074.043717263, 5002833.32624071, 0, 0, 0)
 satellite = twoline2rv(line1, line2, wgs72)
-#
-# c = 299792 # km/s , value from google
+
 c = 299792458 #m/s
 
 def getStateVectors(starttime, endtime, delta_seconds):
@@ -50,32 +45,6 @@ def getStateVectors(starttime, endtime, delta_seconds):
 
         current_time = current_time + datetime.timedelta(0, delta_seconds)
     return state_vecs
-
-
-def getDoptrackVec(starttime, endtime, delta_seconds):
-    doptrack_vectors = []
-    current_time = starttime
-
-    while current_time < endtime:
-        doptrack_vec = StateVector(doptrack.x / 1000, doptrack.y / 1000, doptrack.z / 1000, 0, 0, 0)
-        doptrack_vec.rotate_time(current_time)
-        doptrack_vectors.append(doptrack_vec)
-
-        current_time = current_time + datetime.timedelta(0, delta_seconds)
-    return doptrack_vectors
-
-
-def getRotatedDopVecs(start_time, end_time, delta_seconds):
-    doptrack_vectors = []
-    current_time = start_time
-
-    while current_time < end_time:
-        dop_vec = copy.copy(dopStateVec)
-        dop_vec.rotate_time(current_time)
-        doptrack_vectors.append(dop_vec)
-
-        current_time = current_time + datetime.timedelta(0, delta_seconds)
-    return doptrack_vectors
 
 
 def getEarthPoints():
@@ -146,7 +115,7 @@ def getDirections(range_rates: [StateVector], state_vectors: [StateVector]):
 
     for range_rate, state_vec in zip(range_rates, state_vectors):
         new_vec = state_vec.plus(range_rate)
-        if (new_vec.minus(dopStateVec).getRange() < state_vec.minus(dopStateVec).getRange()):
+        if (new_vec.minus(doptrack).getRange() < state_vec.minus(doptrack).getRange()):
             directions.append(-1)
         else:
             directions.append(1)
@@ -156,7 +125,7 @@ def plotStuff():
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
     PlotHelper.scatterStatevectors(ax, state_vectors, color='b', marker='D')
-    PlotHelper.scatterStatevectors(ax, [dopStateVec])
+    PlotHelper.scatterStatevectors(ax, [doptrack])
     # PlotHelper.plotStatevectorsToPoint(ax, state_vectors, dopStateVec)
     # PlotHelper.scatterStatevectors(ax, doptrack_vectors)
     PlotHelper.scatterStatevectors(ax, ellipsoid, color='g', marker='x')
@@ -164,28 +133,24 @@ def plotStuff():
     PlotHelper.plotAxesMarkers(ax)
     # PlotHelper.plotLines(ax, state_vectors, doptrack_vectors)
 
-    plt.show()
-
 dt = 1
 
 state_vectors = getStateVectors(startRecord, endRecord, dt)
-# doptrack_vectors = getRotatedDopVecs(startRecord, endRecord, 10)  # getDoptrackVec(startRecord, endRecord, 10)
-
 ellipsoid = getEarthPoints()
 
 prime_meridian_vernal_equinox = getPrimeMeridian()
 
-unit_vectors = getUnitVectors(state_vectors, dopStateVec)
+unit_vectors = getUnitVectors(state_vectors, doptrack)
 # range_rates = getRangeRates(state_vectors, unit_vectors)
 # directions = getDirections(range_rates, state_vectors)
 #
 # freqs = getFrequencies(range_rates, directions, 145.935e6)
 range_rates = rangeRateTest(state_vectors, unit_vectors)
-freqs = freqTest(range_rates, 145.935e6)
+freqs = freqTest(range_rates, tuning_freq) #145.935e6)
 tijd = np.arange(len(freqs))
 plt.scatter(freqs, tijd)
 # plt.gca().invert_yaxis()
-plt.show()
-# print(len(freqs))
 
+# print(len(freqs))
 plotStuff()
+plt.show()
