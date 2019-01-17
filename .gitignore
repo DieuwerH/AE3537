@@ -175,3 +175,6 @@ fabric.properties
 *.32fc
 
 *.png
+
+.virtualenvs
+.virtualenvs copy

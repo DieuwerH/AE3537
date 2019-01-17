@@ -2,6 +2,7 @@ import numpy as np
 import datetime
 import pytz
 from time_helper import datetime2gast
+from time_helper import gast2rad
 
 
 class StateVector:
@@ -19,7 +20,8 @@ class StateVector:
 
     def rotate_time(self, time):
 
-        theta = datetime2gast(time)
+        gast = datetime2gast(time)
+        theta = gast2rad(gast)
 
         self.rotate_velocity_angle(theta)
         self.rotate_position_angle(theta)

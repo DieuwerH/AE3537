@@ -3,11 +3,12 @@ import pytz
 import tle_functions
 import PlotHelper
 import yaml
-import yaml_reader
+from yaml_reader import YamlReader
 from sgp4.earth_gravity import wgs72
 from sgp4.io import twoline2rv
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.dates
 from mpl_toolkits.mplot3d import Axes3D
 from StateVector import StateVector
 from pygeodesy.ellipsoidalKarney import Cartesian
@@ -15,14 +16,15 @@ from pygeodesy.ellipsoidalKarney import LatLon
 import copy
 
 # open the yaml file and load it
-opened = open('FUNcube.yml', 'r')
+opened = open('FUNcube-1_39444_201808311030.yml', 'r')
 loaded = yaml.load(opened)
-tle = yaml_reader.extractTLE(loaded)
-line1 = yaml_reader.extractLine1(loaded)
-line2 = yaml_reader.extractLine2(loaded)
-startRecord = yaml_reader.extractStartRecordTime(loaded)
-endRecord = yaml_reader.extractEndRecordTime(loaded)
-tuning_freq = yaml_reader.extractTuningFrequency(loaded)
+yml = YamlReader('FUNcube-1_39444_201808311030')
+tle = yml.tle()
+line1 = yml.line1()
+line2 = yml.line2()
+startRecord = yml.start_record_time()
+endRecord = yml.end_record_time()
+tuning_freq = yml.tuningfrequency()
 
 # From http://www.apsalin.com/convert-geodetic-to-cartesian.aspx :
 centerEarth = StateVector(0, 0, 0, 0, 0, 0)
@@ -34,6 +36,7 @@ c = 299792458 #m/s
 def getStateVectors(starttime, endtime, delta_seconds):
     state_vecs = []
     current_time = starttime
+    # endtime = endtime + datetime.timedelta(hours=1)
 
     while current_time < endtime:
         pos, vel = satellite.propagate(current_time.year, current_time.month, current_time.day, current_time.hour,
@@ -121,6 +124,16 @@ def getDirections(range_rates: [StateVector], state_vectors: [StateVector]):
             directions.append(1)
     return directions
 
+
+def getTimes(start_time, end_time, dt):
+    times = []
+    current_time = start_time
+
+    while current_time < end_time:
+        times.append(current_time)
+        current_time = current_time + datetime.timedelta(seconds=dt)
+    return times
+
 def plotStuff():
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
@@ -147,8 +160,13 @@ unit_vectors = getUnitVectors(state_vectors, doptrack)
 # freqs = getFrequencies(range_rates, directions, 145.935e6)
 range_rates = rangeRateTest(state_vectors, unit_vectors)
 freqs = freqTest(range_rates, tuning_freq) #145.935e6)
-tijd = np.arange(len(freqs))
-plt.scatter(freqs, tijd)
+tijd = getTimes(startRecord, endRecord, dt) # np.arange(len(freqs))
+dates = matplotlib.dates.date2num(tijd)
+
+fig, ax = plt.subplots()
+plt.plot_date(freqs, dates, xdate=False, ydate=True)
+ax.yaxis.set_major_formatter(matplotlib.dates.DateFormatter('%H:%M:%S'))
+# plt.scatter(freqs, tijd)
 # plt.gca().invert_yaxis()
 
 # print(len(freqs))
