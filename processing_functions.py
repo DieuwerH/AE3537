@@ -6,7 +6,8 @@ def find_brightest_pixels(freqs, waterfall, bandwidth, dt, sample_rate, nfft):
     locs = []
     ts = []
     indices = []
-    brightness = 0
+    total_brightness = 0
+    brightness_decibel = []
 
     for i in range(len(waterfall)):
         next10 = waterfall[i:i+20]
@@ -29,11 +30,12 @@ def find_brightest_pixels(freqs, waterfall, bandwidth, dt, sample_rate, nfft):
                     brightest_value = brightest_candidate_value
                     brightest_index = brightest_candidate_index + left_index
                     brightest_time = i+j
-        brightness += brightest_value
+        total_brightness += brightest_value
+        brightness_decibel.append(10 * np.log10(brightest_value))
         locs.append(index2frequency(brightest_index, sample_rate, nfft))
         ts.append(brightest_time*dt)
         indices.append(brightest_index)
-    return locs, ts, brightness, indices
+    return locs, ts, total_brightness, indices, brightness_decibel
 
 
 def frequency2index(freq, sample_rate, nfft):
